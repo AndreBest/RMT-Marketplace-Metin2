@@ -1,0 +1,84 @@
+quest marketplace begin
+    state start begin
+
+        when 9010.take begin
+            local player_name = pc.get_name()
+            local vnum = item.get_vnum()
+            local name = item.get_name()
+            local count = item.get_count()
+            local s0 = item.get_socket(0)
+            local s1 = item.get_socket(1)
+            local s2 = item.get_socket(2)
+
+            say_title("Web Marketplace")
+            say("")
+            say("Transfer this item to the web?")
+            say("")
+            say_item_vnum(vnum)
+            if count > 1 then
+                say("[Count] "..count)
+            end
+            say("")
+
+            if select("Transfer to Web", "Cancel") ~= 1 then
+                return
+            end
+
+            local p = mysql_query("SELECT id, account_id FROM player.player WHERE name='"..player_name.."' LIMIT 1")
+            if not p or not p[1] then
+                say_title("Error")
+                say("Could not verify account.")
+                return
+            end
+
+            local pid = p["id"][1]
+            local aid = p["account_id"][1]
+            local item_id = item.get_id()
+
+            local at0 = 0
+            local av0 = 0
+            local at1 = 0
+            local av1 = 0
+            local at2 = 0
+            local av2 = 0
+            local at3 = 0
+            local av3 = 0
+            local at4 = 0
+            local av4 = 0
+            local at5 = 0
+            local av5 = 0
+            local at6 = 0
+            local av6 = 0
+
+            local it = mysql_query("SELECT attrtype0,attrvalue0,attrtype1,attrvalue1,attrtype2,attrvalue2,attrtype3,attrvalue3,attrtype4,attrvalue4,attrtype5,attrvalue5,attrtype6,attrvalue6 FROM player.item WHERE id="..item_id)
+
+            if it and it[1] then
+                at0 = it["attrtype0"][1]
+                av0 = it["attrvalue0"][1]
+                at1 = it["attrtype1"][1]
+                av1 = it["attrvalue1"][1]
+                at2 = it["attrtype2"][1]
+                av2 = it["attrvalue2"][1]
+                at3 = it["attrtype3"][1]
+                av3 = it["attrvalue3"][1]
+                at4 = it["attrtype4"][1]
+                av4 = it["attrvalue4"][1]
+                at5 = it["attrtype5"][1]
+                av5 = it["attrvalue5"][1]
+                at6 = it["attrtype6"][1]
+                av6 = it["attrvalue6"][1]
+            end
+
+            mysql_query("INSERT INTO player.marketplace_items (owner_id,account_id,owner_name,item_vnum,item_name,item_count,socket0,socket1,socket2,attrtype0,attrvalue0,attrtype1,attrvalue1,attrtype2,attrvalue2,attrtype3,attrvalue3,attrtype4,attrvalue4,attrtype5,attrvalue5,attrtype6,attrvalue6,status,created_at) VALUES ("..pid..","..aid..",'"..player_name.."',"..vnum..",'"..name.."',"..count..","..s0..","..s1..","..s2..","..at0..","..av0..","..at1..","..av1..","..at2..","..av2..","..at3..","..av3..","..at4..","..av4..","..at5..","..av5..","..at6..","..av6..",'inventory',NOW())")
+
+            item.remove()
+
+            mysql_query("INSERT INTO player.marketplace_notifications (account_id,message,created_at) VALUES ("..aid..",'Item "..name.." added to web inventory.',NOW())")
+
+            say_title("Web Marketplace")
+            say("")
+            say("Done! Check the website.")
+        end
+
+    end
+end

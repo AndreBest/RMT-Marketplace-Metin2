@@ -1,0 +1,31 @@
+quest marketplace begin
+    state start begin
+
+        when 9010.take begin
+            say_title("Web Marketplace")
+            say("")
+            say("Transfer this item to the web?")
+            say("")
+            say_item_vnum(item.get_vnum())
+            if item.get_count() > 1 then
+                say("[Count] "..item.get_count())
+            end
+            say("")
+
+            if select("Transfer to Web", "Cancel") ~= 1 then
+                return
+            end
+
+            local result = item.marketplace_transfer()
+            if result == 1 then
+                say_title("Web Marketplace")
+                say("")
+                say("Done! Check the website.")
+            else
+                say_title("Error")
+                say("Transfer failed.")
+            end
+        end
+
+    end
+end
